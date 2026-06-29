@@ -95,6 +95,23 @@ All secrets are injected at runtime via the `.env` file. **Never commit real val
 
 ---
 
+## Testing policy
+
+Every code change — new feature or bug fix — must include the corresponding unit test changes in the same branch. Tests are not a separate follow-up step.
+
+**Minimum unit test coverage: 80%.**
+
+| Changed code | Where to add/update tests |
+|---|---|
+| Domain entities / value objects | `tests/TicketingSystem.Domain.Tests/` |
+| Application command / query handlers | `tests/TicketingSystem.Application.Tests/` |
+| API endpoints / middleware | `tests/TicketingSystem.Api.IntegrationTests/` |
+| Angular components / services / pipes | Jest spec files alongside the changed file |
+
+Do not consider a task done — and do not commit — if coverage for the changed code would fall below 80%.
+
+---
+
 ## Branching strategy — trunk-based development
 
 `main` is the trunk. All work flows through short-lived feature branches that merge back to `main` via pull request. There is no `develop`, `release`, or long-lived environment branch.
