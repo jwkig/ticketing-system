@@ -8,10 +8,10 @@ This document describes the architecture for a Kanban-style ticketing system bui
 
 | Tier | Technology |
 |---|---|
-| Frontend | Angular 18 |
-| Backend | ASP.NET Core 8 Web API |
+| Frontend | Angular 22 |
+| Backend | ASP.NET Core 10 Web API |
 | Database | PostgreSQL 16 |
-| ORM | Entity Framework Core 8 |
+| ORM | Entity Framework Core 10 |
 | CQRS bus | MediatR |
 | Validation | FluentValidation |
 | Password hashing | Libsodium / Argon2id via `Konscious.Security.Cryptography` |
@@ -211,7 +211,7 @@ Implements all interfaces declared in Domain and Application. Depends on both in
 
 **Persistence**
 
-- EF Core 8 with Npgsql provider.
+- EF Core 10 with Npgsql provider.
 - One `AppDbContext` containing all `DbSet<T>` types.
 - Fluent configuration via `IEntityTypeConfiguration<T>` classes (separate file per entity).
 - Migrations managed with `dotnet ef migrations` and applied at startup via `context.Database.MigrateAsync()`.
@@ -243,7 +243,7 @@ comments        id, ticket_id (FK cascade delete), author_id (FK), body, created
 
 ### 3.4 API Layer (`TicketingSystem.Api`)
 
-ASP.NET Core 8 minimal-hosting model. Depends on all layers for DI composition only.
+ASP.NET Core 10 minimal-hosting model. Depends on all layers for DI composition only.
 
 **Controllers** (thin — no business logic, only dispatch to MediatR)
 

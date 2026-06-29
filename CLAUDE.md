@@ -13,10 +13,10 @@ Full architecture: [`docs/architecture.md`](docs/architecture.md)
 
 | Concern | Technology |
 |---|---|
-| Backend | ASP.NET Core 8 Web API |
-| Frontend | Angular 18 |
+| Backend | ASP.NET Core 10 Web API |
+| Frontend | Angular 22 |
 | Database | PostgreSQL 16 |
-| ORM / migrations | Entity Framework Core 8 + Npgsql |
+| ORM / migrations | Entity Framework Core 10 + Npgsql |
 | CQRS bus | MediatR |
 | Validation | FluentValidation |
 | Password hashing | Argon2id (`Konscious.Security.Cryptography`) |
@@ -52,7 +52,7 @@ ticketing-system/
 
 ## Architecture in one paragraph
 
-The backend follows **Clean Architecture**: the `Domain` layer contains pure C# entities and rules with no framework dependencies; the `Application` layer orchestrates use cases via MediatR commands and queries; the `Infrastructure` layer implements persistence (EF Core), email (MailKit), and auth (JWT); the `Api` layer is thin controllers that dispatch to MediatR and handle HTTP concerns only. The Angular frontend is split into a `core/` singleton layer, lazy-loaded `features/` modules, and a `shared/` component library. All three tiers run as separate Docker containers behind an nginx reverse proxy.
+The backend follows **Clean Architecture**: the `Domain` layer contains pure C# entities and rules with no framework dependencies; the `Application` layer orchestrates use cases via MediatR commands and queries; the `Infrastructure` layer implements persistence (EF Core 10), email (MailKit), and auth (JWT); the `Api` layer is thin ASP.NET Core 10 controllers that dispatch to MediatR and handle HTTP concerns only. The Angular 22 frontend is split into a `core/` singleton layer, lazy-loaded `features/` modules, and a `shared/` component library. All three tiers run as separate Docker containers behind an nginx reverse proxy.
 
 See [`docs/architecture.md`](docs/architecture.md) for layer diagrams, entity definitions, API contract, Docker topology, and key architectural decisions.
 
