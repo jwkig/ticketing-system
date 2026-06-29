@@ -95,6 +95,38 @@ All secrets are injected at runtime via the `.env` file. **Never commit real val
 
 ---
 
+## Branching strategy — trunk-based development
+
+`main` is the trunk. All work flows through short-lived feature branches that merge back to `main` via pull request. There is no `develop`, `release`, or long-lived environment branch.
+
+### Branch naming
+
+```
+feat/<short-description>      # new functionality
+fix/<short-description>       # bug fixes
+chore/<short-description>     # tooling, config, docs, dependency updates
+```
+
+### Rules for Claude Code
+
+1. **Check branch and PR state before starting any work.**
+2. **Open PR on the current branch** — keep working on the current branch; push additional commits to it when asked.
+3. **Closed and merged PR** — pull `main` and cut a new `feat/*` / `fix/*` / `chore/*` branch before making changes.
+4. **Never create a commit or open/update a PR automatically.** Stage changes and wait to be asked explicitly.
+5. Feature branches are short-lived (hours to a couple of days). If a branch grows stale, flag it rather than silently accumulating commits.
+
+### Typical flow
+
+```
+git switch main && git pull          # start from latest trunk
+git switch -c feat/<topic>           # new short-lived branch
+# ... make changes, run tests ...
+# ask to commit → ask to push → ask to open PR
+# PR reviewed and merged → branch deleted
+```
+
+---
+
 ## Explicit out-of-scope items
 
 Scrum/sprints, SSO, fine-grained roles, file attachments, real-time updates, custom workflows, and production deployment hardening are all out of scope. Do not add them.
