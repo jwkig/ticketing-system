@@ -51,15 +51,70 @@ ticketing-system/
 │   ├── TicketingSystem.Domain/           # Inner core — no NuGet deps beyond BCL
 │   ├── TicketingSystem.Application/      # Use cases — depends on Domain only
 │   ├── TicketingSystem.Infrastructure/   # Adapters — depends on Application + Domain
-│   └── TicketingSystem.Api/              # Entry point — depends on all layers (DI wiring)
+│   └── TicketingSystem.Api/             # Entry point — depends on all layers (DI wiring)
 ├── tests/
 │   ├── TicketingSystem.Domain.Tests/
 │   ├── TicketingSystem.Application.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
 ├── frontend/                             # Angular workspace
+├── Directory.Build.props                 # Shared MSBuild properties for all projects
+├── Directory.Packages.props              # Centralised NuGet package versions (CPM)
+├── TicketingSystem.sln
 ├── docker-compose.yml
 └── README.md
 ```
+
+### 3.0 Centralised Build Configuration
+
+All `.csproj` files are kept minimal — shared settings live in two repo-root MSBuild files that are automatically imported by the SDK.
+
+**`Directory.Build.props`** — common MSBuild properties inherited by every project:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
+```
+
+**`Directory.Packages.props`** — [Central Package Management (CPM)](https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management): all NuGet versions declared once, referenced without versions in `.csproj` files:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Label="Framework">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk"         Version="17.12.0" />
+  </ItemGroup>
+  <ItemGroup Label="Application">
+    <PackageVersion Include="MediatR"                        Version="12.4.1" />
+    <PackageVersion Include="FluentValidation"               Version="11.11.0" />
+    <PackageVersion Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
+    <PackageVersion Include="MailKit"                        Version="4.9.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Infrastructure">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore"  Version="10.0.0" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="xunit"                          Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio"      Version="2.8.2" />
+    <PackageVersion Include="coverlet.collector"             Version="6.0.4" />
+    <PackageVersion Include="Moq"                            Version="4.20.72" />
+    <PackageVersion Include="Testcontainers.PostgreSql"      Version="4.4.0" />
+  </ItemGroup>
+</Project>
+```
+
+With CPM enabled, individual `.csproj` files use `<PackageReference Include="..." />` with **no `Version` attribute** — versions are resolved centrally. This eliminates version drift across projects and makes upgrades a single-line change.
 
 ### 3.1 Domain Layer (`TicketingSystem.Domain`)
 
