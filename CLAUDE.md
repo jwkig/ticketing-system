@@ -1,0 +1,100 @@
+# Ticketing System — Claude Code Guide
+
+## What this project is
+
+A Kanban-style ticket tracker built as a hackathon exercise. Users sign up, verify their email, then create teams, epics, and tickets that move through a fixed five-state workflow on a drag-and-drop board.
+
+Full requirements: `Hackathon_Ticketing_System_Requirements_v3 1.docx`  
+Full architecture: [`docs/architecture.md`](docs/architecture.md)
+
+---
+
+## Tech stack
+
+| Concern | Technology |
+|---|---|
+| Backend | ASP.NET Core 8 Web API |
+| Frontend | Angular 18 |
+| Database | PostgreSQL 16 |
+| ORM / migrations | Entity Framework Core 8 + Npgsql |
+| CQRS bus | MediatR |
+| Validation | FluentValidation |
+| Password hashing | Argon2id (`Konscious.Security.Cryptography`) |
+| Email | MailKit (SMTP) |
+| Auth | JWT Bearer (`Authorization: Bearer <token>`) |
+| Containerisation | Docker Compose |
+| Drag-and-drop | `@angular/cdk/drag-drop` |
+
+---
+
+## Repository layout
+
+```
+ticketing-system/
+├── src/
+│   ├── TicketingSystem.Domain/          # Entities, value objects, repo interfaces
+│   ├── TicketingSystem.Application/     # CQRS commands/queries, DTOs, validators
+│   ├── TicketingSystem.Infrastructure/  # EF Core, SMTP, JWT, repositories
+│   └── TicketingSystem.Api/             # ASP.NET Core controllers, middleware, DI root
+├── tests/
+│   ├── TicketingSystem.Domain.Tests/
+│   ├── TicketingSystem.Application.Tests/
+│   └── TicketingSystem.Api.IntegrationTests/
+├── frontend/                            # Angular workspace
+├── docs/
+│   └── architecture.md                  # Detailed architecture document
+├── docker-compose.yml
+├── .env.example                         # Placeholder secrets — copy to .env before running
+└── README.md
+```
+
+---
+
+## Architecture in one paragraph
+
+The backend follows **Clean Architecture**: the `Domain` layer contains pure C# entities and rules with no framework dependencies; the `Application` layer orchestrates use cases via MediatR commands and queries; the `Infrastructure` layer implements persistence (EF Core), email (MailKit), and auth (JWT); the `Api` layer is thin controllers that dispatch to MediatR and handle HTTP concerns only. The Angular frontend is split into a `core/` singleton layer, lazy-loaded `features/` modules, and a `shared/` component library. All three tiers run as separate Docker containers behind an nginx reverse proxy.
+
+See [`docs/architecture.md`](docs/architecture.md) for layer diagrams, entity definitions, API contract, Docker topology, and key architectural decisions.
+
+---
+
+## Running the application
+
+```bash
+cp .env.example .env          # fill in SMTP credentials and JWT secret
+docker compose up --build
+```
+
+The app is available at `http://localhost` after all containers are healthy. No host-installed runtime is required beyond Docker Compose.
+
+---
+
+## Configuration (environment variables)
+
+All secrets are injected at runtime via the `.env` file. **Never commit real values.**
+
+| Variable | Purpose |
+|---|---|
+| `POSTGRES_CONNECTION_STRING` | PostgreSQL connection string |
+| `JWT_SECRET_KEY` | HS256 signing key (≥ 256-bit random string) |
+| `SMTP_HOST` | SMTP relay hostname (e.g. `relay1.dataart.com`) |
+| `SMTP_PORT` | SMTP port |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASSWORD` | SMTP password |
+| `APP_BASE_URL` | Public URL used in verification email links |
+
+---
+
+## Key domain rules
+
+- **Epic–team coupling**: a ticket's epic must belong to the same team as the ticket; enforced in the domain entity and rejected by the backend with 400 if violated.
+- **Delete guards**: a team cannot be deleted while it has tickets or epics; an epic cannot be deleted while tickets reference it. Both return HTTP 409 Conflict.
+- **ModifiedAt precision**: saving unchanged ticket fields must not advance `ModifiedAt`. The entity compares values before updating the timestamp.
+- **Verification tokens**: single-use, expire after 24 hours, stored as a SHA-256 hash. Issuing a new token invalidates previous unused ones.
+- **Passwords**: always hashed with Argon2id before persistence; never logged or returned in any API response.
+
+---
+
+## Explicit out-of-scope items
+
+Scrum/sprints, SSO, fine-grained roles, file attachments, real-time updates, custom workflows, and production deployment hardening are all out of scope. Do not add them.
