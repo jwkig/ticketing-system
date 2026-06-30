@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
-  const snack = { open: jest.fn() };
+  const snack = { open: vi.fn() };
   let service: NotificationService;
 
   beforeEach(() => {

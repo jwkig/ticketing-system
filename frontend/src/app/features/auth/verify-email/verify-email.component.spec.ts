@@ -10,7 +10,7 @@ function configure(token: string | null, verify: () => unknown) {
     imports: [VerifyEmailComponent],
     providers: [
       provideRouter([]),
-      { provide: AuthService, useValue: { verifyEmail: jest.fn(verify) } },
+      { provide: AuthService, useValue: { verifyEmail: vi.fn(verify) } },
       { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap } } },
     ],
   }).compileComponents();

@@ -370,8 +370,8 @@ ASPNETCORE_ENVIRONMENT
 > resend-verification) per Wireframe 2. The JWT is held in `sessionStorage`. The
 > verification email links to the SPA route `/verify-email?token=…`, which calls
 > the API and renders the result. `/` redirects to `/board`, currently a guarded
-> placeholder until the board feature is built. Unit tests use **Jest**
-> (jest-preset-angular, zoneless test env).
+> placeholder until the board feature is built. Unit tests use **Vitest**
+> (Angular 22's built-in `ng test` runner, Node + jsdom).
 
 ```
 frontend/src/app/
@@ -521,7 +521,7 @@ Auth: `Authorization: Bearer <jwt>` header on all protected endpoints.
 | Domain | xUnit | Entity invariants, value object rules, domain exceptions |
 | Application | xUnit + Moq | Command/query handlers with mocked repositories |
 | API integration | xUnit + Testcontainers (Postgres) | Full HTTP round-trips, auth flows, 409/404 scenarios |
-| Frontend unit | Jest + Angular Testing Library | Services, pipes, guard logic |
+| Frontend unit | Vitest (Angular `ng test`) | Services, pipes, guard logic, component logic |
 | Frontend E2E | Playwright | At least one happy-path flow (signup → verify → create ticket → drag to Done) |
 
 ---

@@ -35,7 +35,7 @@ export class ResendVerificationComponent implements OnInit {
   protected readonly errorMessage = signal('');
   protected readonly sent = signal(false);
 
-  protected readonly form = this.fb.nonNullable.group({
+  readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
   });
 

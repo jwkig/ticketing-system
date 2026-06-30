@@ -49,7 +49,7 @@ export class SignupComponent {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
 
-  protected readonly form = this.fb.nonNullable.group(
+  readonly form = this.fb.nonNullable.group(
     {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],

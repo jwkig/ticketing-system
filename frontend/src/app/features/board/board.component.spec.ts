@@ -7,7 +7,7 @@ import { BoardComponent } from './board.component';
 describe('BoardComponent', () => {
   let fixture: ComponentFixture<BoardComponent>;
   let router: Router;
-  const auth = { logout: jest.fn(), currentUserEmail: signal('me@example.com') };
+  const auth = { logout: vi.fn(), currentUserEmail: signal('me@example.com') };
 
   beforeEach(async () => {
     auth.logout.mockReset();
@@ -25,7 +25,7 @@ describe('BoardComponent', () => {
   });
 
   it('logs out and redirects to /login', () => {
-    const nav = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+    const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.componentInstance.logout();
     expect(auth.logout).toHaveBeenCalled();
     expect(nav).toHaveBeenCalledWith(['/login']);

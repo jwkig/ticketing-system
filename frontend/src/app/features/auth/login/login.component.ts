@@ -35,7 +35,7 @@ export class LoginComponent {
   protected readonly errorMessage = signal('');
   protected readonly notVerified = signal(false);
 
-  protected readonly form = this.fb.nonNullable.group({
+  readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });

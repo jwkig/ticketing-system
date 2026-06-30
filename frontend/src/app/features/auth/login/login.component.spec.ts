@@ -9,7 +9,7 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let router: Router;
-  const auth = { login: jest.fn() };
+  const auth = { login: vi.fn() };
 
   beforeEach(async () => {
     auth.login.mockReset();
@@ -30,7 +30,7 @@ describe('LoginComponent', () => {
   });
 
   it('logs in and navigates to /board on success', async () => {
-    const nav = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+    const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     auth.login.mockReturnValue(of({ token: 't' }));
     component.form.setValue({ email: 'a@b.com', password: 'secret1' });
 
