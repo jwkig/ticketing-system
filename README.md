@@ -2,6 +2,8 @@
 
 A Kanban-style ticket tracker. Users sign up, verify their email, create teams and epics, then manage tickets across a five-state workflow on a drag-and-drop board.
 
+> **Status:** the backend API is complete; the frontend currently implements the authentication flow (sign-up, login, email verification, resend). Teams, epics, tickets, and the Kanban board are in progress.
+
 ## Tech stack
 
 | Concern | Technology |
@@ -41,7 +43,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml \
 
 Once the containers are healthy:
 
-- App / API edge: <http://localhost> (nginx serves a placeholder until the Angular app is built; API is proxied under `/api/`)
+- App / API edge: <http://localhost> — nginx serves the Angular SPA (login screen) and proxies the API under `/api/`
 - Health: <http://localhost/health> and `…/health/ready`
 - MailDev inbox (captures verification emails in dev): <http://localhost:1080>
 
@@ -75,7 +77,7 @@ docker compose -f docker-compose.yml -f docker-compose.<env>.yml \
 
 The API applies EF Core migrations on startup; Compose waits for the database's health check before starting it, so the first boot provisions the schema automatically.
 
-> **Note:** the Angular frontend is not implemented yet — nginx serves a placeholder page. When the frontend lands, the web image's build stage (commented in `deploy/nginx/Dockerfile`) compiles and serves the Angular bundle with no compose changes.
+> **Note:** the `web` image is a multi-stage build — it compiles the Angular SPA and nginx serves it (see `deploy/nginx/Dockerfile`). The authentication flow is implemented; the board/teams/epics/tickets screens are not built yet (`/board` is a protected placeholder).
 
 ## Configuration
 
@@ -107,7 +109,7 @@ ticketing-system/
 │   └── TicketingSystem.Api.IntegrationTests/
 ├── deploy/
 │   ├── compose.ps1                      # PowerShell up/down helper (Windows)
-│   └── nginx/                           # Web tier: Dockerfile, reverse-proxy conf, SPA placeholder
+│   └── nginx/                           # Web tier: multi-stage Dockerfile (builds + serves the SPA) + reverse-proxy conf
 ├── env/                                 # Per-environment *.env.example templates
 ├── docker-compose.yml                   # Base topology (nginx → api → db)
 ├── docker-compose.{dev,test,prod}.yml   # Environment overrides
