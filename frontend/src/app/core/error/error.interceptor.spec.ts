@@ -33,8 +33,8 @@ describe('extractErrorMessage', () => {
 describe('errorInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-  const auth = { logout: jest.fn() };
-  const notify = { error: jest.fn(), success: jest.fn() };
+  const auth = { logout: vi.fn() };
+  const notify = { error: vi.fn(), success: vi.fn() };
 
   beforeEach(() => {
     auth.logout.mockReset();
@@ -55,7 +55,7 @@ describe('errorInterceptor', () => {
   afterEach(() => httpMock.verify());
 
   it('logs out and redirects on 401', () => {
-    const nav = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     http.get('/api/secure').subscribe({ error: () => undefined });
     httpMock.expectOne('/api/secure').flush(null, { status: 401, statusText: 'Unauthorized' });
     expect(auth.logout).toHaveBeenCalled();

@@ -97,6 +97,19 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "coverageExclude": [
+              "src/main.ts",
+              "src/app/app.config.ts",
+              "src/app/app.ts",
+              "src/app/**/*.routes.ts",
+              "src/environments/**"
+            ]
+          }
         }
       }
     }

@@ -6,7 +6,7 @@ import { ResendVerificationComponent } from './resend-verification.component';
 
 function configure(email: string | null) {
   const queryParamMap = convertToParamMap(email === null ? {} : { email });
-  const auth = { resendVerification: jest.fn().mockReturnValue(of(undefined)) };
+  const auth = { resendVerification: vi.fn().mockReturnValue(of(undefined)) };
   TestBed.configureTestingModule({
     imports: [ResendVerificationComponent],
     providers: [

@@ -96,11 +96,11 @@ The SPA lives in `frontend/` (Angular 22, Material, standalone, zoneless). For f
 cd frontend
 npm install
 npm start          # ng serve on http://localhost:4200; /api is proxied to http://localhost:8080
-npm test           # Jest (unit tests, jest-preset-angular)
+npm test           # Vitest (unit tests, via ng test)
 npm run build      # production build → dist/ticketing-frontend/browser
 ```
 
-`npm start` needs the backend reachable on `:8080` (e.g. `dotnet run` in `src/TicketingSystem.Api`, or the dev Docker stack). The API base URL is `/api` (see `src/environments/`); the dev proxy is `frontend/proxy.conf.json`. Tests use **Jest** (not the Angular-default Vitest) per the testing policy below.
+`npm start` needs the backend reachable on `:8080` (e.g. `dotnet run` in `src/TicketingSystem.Api`, or the dev Docker stack). The API base URL is `/api` (see `src/environments/`); the dev proxy is `frontend/proxy.conf.json`. Tests use **Vitest** — Angular 22's built-in runner via `ng test` (`@angular/build:unit-test`, Node + jsdom); coverage with `npm run test:coverage`.
 
 ---
 
@@ -143,7 +143,7 @@ Every code change — new feature or bug fix — must include the corresponding 
 | Domain entities / value objects | `tests/TicketingSystem.Domain.Tests/` |
 | Application command / query handlers | `tests/TicketingSystem.Application.Tests/` |
 | API endpoints / middleware | `tests/TicketingSystem.Api.IntegrationTests/` |
-| Angular components / services / pipes | Jest spec files alongside the changed file |
+| Angular components / services / pipes | Vitest `*.spec.ts` alongside the changed file (`ng test`) |
 
 Do not consider a task done — and do not commit — if coverage for the changed code would fall below 80%.
 

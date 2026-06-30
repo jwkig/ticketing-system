@@ -1,12 +1,9 @@
-/* TypeScript config for Jest unit tests. */
+/* TypeScript config for Vitest unit tests (Angular @angular/build:unit-test). */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "types": ["jest", "node"]
+    "types": ["vitest/globals"]
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }

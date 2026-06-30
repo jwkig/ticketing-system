@@ -130,7 +130,7 @@ In the Docker stacks, nginx builds and serves the SPA at the edge. For fast loca
 cd frontend
 npm install
 npm start          # ng serve on http://localhost:4200 (proxies /api to http://localhost:8080)
-npm test           # Jest unit tests
+npm test           # Vitest unit tests (ng test)
 npm run build      # production build → dist/ticketing-frontend/browser
 ```
 
@@ -140,7 +140,7 @@ npm run build      # production build → dist/ticketing-frontend/browser
 
 ```bash
 dotnet test                  # backend: domain, application, infrastructure, API integration
-cd frontend && npm test      # frontend: Jest unit tests
+cd frontend && npm test      # frontend: Vitest unit tests (ng test)
 ```
 
 Minimum coverage target is 80 % per changed file.

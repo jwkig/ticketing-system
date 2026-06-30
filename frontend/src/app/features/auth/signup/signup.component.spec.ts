@@ -9,8 +9,8 @@ describe('SignupComponent', () => {
   let fixture: ComponentFixture<SignupComponent>;
   let component: SignupComponent;
   let router: Router;
-  const auth = { signUp: jest.fn() };
-  const notify = { success: jest.fn(), error: jest.fn() };
+  const auth = { signUp: vi.fn() };
+  const notify = { success: vi.fn(), error: vi.fn() };
 
   beforeEach(async () => {
     auth.signUp.mockReset();
@@ -46,7 +46,7 @@ describe('SignupComponent', () => {
   });
 
   it('signs up, notifies, and routes to login on success', async () => {
-    const nav = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+    const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     auth.signUp.mockReturnValue(of(undefined));
     component.form.setValue({ email: 'a@b.com', password: 'password1', confirmPassword: 'password1' });
 
