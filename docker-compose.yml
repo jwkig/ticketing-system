@@ -1,0 +1,60 @@
+# Base topology: nginx (web) -> api -> postgres (db).
+# Run with an environment override and an --env-file, e.g.:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+#     -p ticketing-dev --env-file env/dev.env up --build
+# Or use the helper: ./deploy/compose.ps1 dev up
+name: ticketing
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ escapes compose interpolation so the var is read inside the container.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [ticketing]
+
+  api:
+    build:
+      context: .
+      dockerfile: src/TicketingSystem.Api/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      # Connection string is assembled from the POSTGRES_* vars; host is the db service.
+      POSTGRES_CONNECTION_STRING: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-60}
+      APP_BASE_URL: ${APP_BASE_URL}
+      ANGULAR_ORIGIN: ${ANGULAR_ORIGIN}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+    depends_on:
+      db:
+        # API runs EF migrations at startup with no retry, so wait for a ready DB.
+        condition: service_healthy
+    networks: [ticketing]
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/nginx/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [ticketing]
+
+networks:
+  ticketing:
+
+volumes:
+  db-data:

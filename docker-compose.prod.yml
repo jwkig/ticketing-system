@@ -1,0 +1,16 @@
+# Production override. The database port is NOT published — Postgres is only
+# reachable on the internal network. Edge is nginx on :8080.
+#   ./deploy/compose.ps1 prod up -Detach
+services:
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    restart: unless-stopped
+
+  web:
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  db:
+    restart: unless-stopped

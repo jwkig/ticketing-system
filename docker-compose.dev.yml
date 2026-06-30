@@ -1,0 +1,25 @@
+# Development override. Exposes ports for local access and adds MailDev so the
+# signup/verification email flow works without a real SMTP server.
+#   ./deploy/compose.ps1 dev up
+services:
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  web:
+    ports:
+      - "80:80"
+
+  db:
+    ports:
+      - "5432:5432"
+
+  maildev:
+    image: maildev/maildev:latest
+    environment:
+      # API connects via SMTP_HOST=maildev / SMTP_PORT=1025 (see env/dev.env.example).
+      MAILDEV_SMTP_PORT: "1025"
+      MAILDEV_WEB_PORT: "1080"
+    ports:
+      - "1080:1080" # web UI: http://localhost:1080
+    networks: [ticketing]
