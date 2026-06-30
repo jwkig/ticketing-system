@@ -11,12 +11,18 @@
   <ItemGroup Label="Application">
     <PackageVersion Include="MediatR"                                          Version="12.4.1" />
     <PackageVersion Include="FluentValidation"                                 Version="11.11.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions"   Version="11.11.0" />
     <PackageVersion Include="Konscious.Security.Cryptography.Argon2"           Version="1.3.1" />
     <PackageVersion Include="MailKit"                                          Version="4.17.0" />
     <PackageVersion Include="MimeKit"                                          Version="4.17.0" />
     <PackageVersion Include="System.Security.Cryptography.Xml"                Version="10.0.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer"   Version="10.0.0" />
     <PackageVersion Include="Serilog.AspNetCore"                               Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Api">
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi"                     Version="10.0.0" />
+    <PackageVersion Include="Scalar.AspNetCore"                                Version="2.16.7" />
   </ItemGroup>
 
   <ItemGroup Label="Infrastructure">
@@ -31,6 +37,7 @@
     <PackageVersion Include="coverlet.collector"                               Version="6.0.4" />
     <PackageVersion Include="Moq"                                              Version="4.20.72" />
     <PackageVersion Include="Testcontainers.PostgreSql"                        Version="4.4.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing"                 Version="10.0.0" />
   </ItemGroup>
 
 </Project>
