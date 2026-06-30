@@ -39,14 +39,22 @@ ticketing-system/
 ├── tests/
 │   ├── TicketingSystem.Domain.Tests/
 │   ├── TicketingSystem.Application.Tests/
+│   ├── TicketingSystem.Infrastructure.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
-├── frontend/                            # Angular workspace
+├── frontend/                            # Angular workspace — SKELETON ONLY, not yet implemented
+├── deploy/
+│   ├── compose.ps1                      # PowerShell up/down helper (Windows)
+│   └── nginx/                           # Web tier: Dockerfile, reverse-proxy conf, SPA placeholder
+├── env/                                 # Per-environment *.env.example templates (real env/*.env git-ignored)
 ├── docs/
 │   └── architecture.md                  # Detailed architecture document
-├── docker-compose.yml
-├── .env.example                         # Placeholder secrets — copy to .env before running
+├── docker-compose.yml                   # Base topology (nginx → api → db)
+├── docker-compose.{dev,test,prod}.yml   # Environment overrides
+├── Makefile                             # make <env>-up / <env>-down / …
 └── README.md
 ```
+
+> **Note:** the Angular frontend is **not implemented yet** — `frontend/` contains only an empty directory skeleton. The architecture doc describes the intended structure, but no Angular code exists. nginx currently serves a placeholder page.
 
 ---
 
@@ -60,28 +68,39 @@ See [`docs/architecture.md`](docs/architecture.md) for layer diagrams, entity de
 
 ## Running the application
 
+The stack (**nginx → api → postgres**) is packaged as a base `docker-compose.yml` plus one override per environment (`dev` / `test` / `prod`). Each environment runs under its own Compose project name and reads `env/<env>.env`.
+
 ```bash
-cp .env.example .env          # fill in SMTP credentials and JWT secret
-docker compose up --build
+cp env/dev.env.example env/dev.env     # defaults work as-is for local dev
+make dev-up                            # or: ./deploy/compose.ps1 dev up   (Windows)
 ```
 
-The app is available at `http://localhost` after all containers are healthy. No host-installed runtime is required beyond Docker Compose.
+Raw equivalent (any platform, no make):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.<env>.yml \
+  -p ticketing-<env> --env-file env/<env>.env up --build
+```
+
+Edge ports: dev `:80`, test `:8081`, prod `:8080`. The API applies EF migrations on startup; Compose gates it on the DB health check. The API exposes `/health` (liveness) and `/health/ready` (DB readiness). No host-installed runtime is required beyond Docker (and optionally `make`).
 
 ---
 
 ## Configuration (environment variables)
 
-All secrets are injected at runtime via the `.env` file. **Never commit real values.**
+Each environment's values live in `env/<env>.env` (copied from the committed `env/<env>.env.example`). **Never commit real `env/*.env` files** — they are git-ignored.
 
 | Variable | Purpose |
 |---|---|
-| `POSTGRES_CONNECTION_STRING` | PostgreSQL connection string |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | DB credentials; the API's `POSTGRES_CONNECTION_STRING` is assembled from these in compose |
 | `JWT_SECRET_KEY` | HS256 signing key (≥ 256-bit random string) |
-| `SMTP_HOST` | SMTP relay hostname (e.g. `relay1.dataart.com`) |
+| `JWT_EXPIRATION_MINUTES` | Token lifetime (default 60) |
+| `APP_BASE_URL` | Public URL used in verification email links |
+| `ANGULAR_ORIGIN` | Allowed CORS origin for the SPA |
+| `SMTP_HOST` | SMTP relay hostname (e.g. `relay1.dataart.com`; `maildev` in dev) |
 | `SMTP_PORT` | SMTP port |
 | `SMTP_USER` | SMTP username |
 | `SMTP_PASSWORD` | SMTP password |
-| `APP_BASE_URL` | Public URL used in verification email links |
 
 ---
 

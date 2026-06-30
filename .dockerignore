@@ -1,0 +1,22 @@
+# Keep the build context small and reproducible. Do NOT exclude src/, deploy/,
+# Directory.*.props, or *.sln — they are needed by the image builds.
+**/bin
+**/obj
+**/.vs
+**/*.user
+.git
+.github
+.idea
+TestResults
+
+# Frontend build artefacts (not yet used by the image builds)
+frontend/node_modules
+frontend/dist
+frontend/.angular
+frontend/.sass-cache
+
+# Local secrets and docs
+.env
+env/*.env
+docs
+*.md
