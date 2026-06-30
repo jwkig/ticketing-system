@@ -5,7 +5,8 @@
 A Kanban-style ticket tracker built as a hackathon exercise. Users sign up, verify their email, then create teams, epics, and tickets that move through a fixed five-state workflow on a drag-and-drop board.
 
 Full requirements: `Hackathon_Ticketing_System_Requirements_v3 1.docx`  
-Full architecture: [`docs/architecture.md`](docs/architecture.md)
+Full architecture: [`docs/architecture.md`](docs/architecture.md)  
+Reference wireframes: [`docs/ui/wireframes/`](docs/ui/wireframes/README.md) — low-fidelity screen mock-ups for the board, auth, ticket detail, teams, and epics (from §15 of the spec)
 
 ---
 
@@ -47,7 +48,8 @@ ticketing-system/
 │   └── nginx/                           # Web tier: Dockerfile, reverse-proxy conf, SPA placeholder
 ├── env/                                 # Per-environment *.env.example templates (real env/*.env git-ignored)
 ├── docs/
-│   └── architecture.md                  # Detailed architecture document
+│   ├── architecture.md                  # Detailed architecture document
+│   └── ui/wireframes/                   # Reference wireframes (PNG) + index, from spec §15
 ├── docker-compose.yml                   # Base topology (nginx → api → db)
 ├── docker-compose.{dev,test,prod}.yml   # Environment overrides
 ├── Makefile                             # make <env>-up / <env>-down / …
