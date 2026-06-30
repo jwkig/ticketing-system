@@ -163,11 +163,11 @@ chore/<short-description>     # tooling, config, docs, dependency updates
 
 ### Rules for Claude Code
 
-1. **Check branch and PR state before starting any work.**
-2. **Open PR on the current branch** — keep working on the current branch; push additional commits to it when asked.
-3. **Closed and merged PR** — pull `main` and cut a new `feat/*` / `fix/*` / `chore/*` branch before making changes.
-4. **Never create a commit or open/update a PR automatically.** Stage changes and wait to be asked explicitly.
-5. Feature branches are short-lived (hours to a couple of days). If a branch grows stale, flag it rather than silently accumulating commits.
+1. **Before making any change, check the PR associated with the current branch** (e.g. `gh pr view --json number,state`), then branch accordingly:
+   - **An open PR exists for the current branch** → make the change on the current branch and push additional commits to it.
+   - **Otherwise** (no PR, or the PR is closed/merged) → `git switch main && git pull`, then cut a new `feat/*` / `fix/*` / `chore/*` branch from `main` and make the change there. **Never commit onto a branch whose PR is already merged** (pushing to it just recreates a stale, already-merged branch).
+2. **Never create a commit or open/update a PR automatically.** Stage changes and wait to be asked explicitly.
+3. Feature branches are short-lived (hours to a couple of days). If a branch grows stale, flag it rather than silently accumulating commits.
 
 ### Typical flow
 
