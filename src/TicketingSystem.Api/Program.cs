@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -10,6 +11,7 @@ using TicketingSystem.Api.Services;
 using TicketingSystem.Application;
 using TicketingSystem.Application.Services;
 using TicketingSystem.Infrastructure;
+using TicketingSystem.Infrastructure.Options;
 using TicketingSystem.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,13 +28,22 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-var jwtKey = builder.Configuration["JWT_SECRET_KEY"]
-    ?? throw new InvalidOperationException("JWT_SECRET_KEY is required.");
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddJwtBearer();
+
+// Source the validation key from the same JwtSettings that JwtService signs with,
+// resolved lazily after all configuration sources are composed. Reading the key
+// eagerly here would capture it before late-added sources (e.g. test config) are
+// applied, splitting the signer's and validator's keys and breaking validation.
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>>((options, jwtSettings) =>
     {
+        var secretKey = jwtSettings.Value.SecretKey;
+        if (string.IsNullOrWhiteSpace(secretKey))
+            throw new InvalidOperationException("JWT_SECRET_KEY is required.");
+
         // The JWT is issued with a raw "sub" claim; keep it unmapped so
         // CurrentUserService can read JwtRegisteredClaimNames.Sub directly.
         options.MapInboundClaims = false;
@@ -43,7 +54,7 @@ builder.Services
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ClockSkew = TimeSpan.Zero,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         };
     });
 
