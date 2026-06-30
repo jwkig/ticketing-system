@@ -1,0 +1,26 @@
+<div class="auth-page">
+  <mat-card class="auth-card auth-result" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Email verification</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @switch (state()) {
+        @case ('pending') {
+          <app-loading-spinner label="Verifying your email…" />
+        }
+        @case ('verified') {
+          <mat-icon class="result-icon success" aria-hidden="true">check_circle</mat-icon>
+          <h2>Email verified</h2>
+          <p>Your account is ready to use.</p>
+          <button mat-flat-button color="primary" routerLink="/login">Continue to login</button>
+        }
+        @case ('error') {
+          <mat-icon class="result-icon error" aria-hidden="true">error_outline</mat-icon>
+          <h2>Expired or invalid link</h2>
+          <p>This verification link is no longer valid. Request a new one below.</p>
+          <button mat-stroked-button routerLink="/resend-verification">Resend email</button>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

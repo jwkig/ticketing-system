@@ -42,10 +42,10 @@ ticketing-system/
 │   ├── TicketingSystem.Application.Tests/
 │   ├── TicketingSystem.Infrastructure.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
-├── frontend/                            # Angular workspace — SKELETON ONLY, not yet implemented
+├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth flow implemented
 ├── deploy/
 │   ├── compose.ps1                      # PowerShell up/down helper (Windows)
-│   └── nginx/                           # Web tier: Dockerfile, reverse-proxy conf, SPA placeholder
+│   └── nginx/                           # Web tier: multi-stage Dockerfile (builds + serves the SPA) + reverse-proxy conf
 ├── env/                                 # Per-environment *.env.example templates (real env/*.env git-ignored)
 ├── docs/
 │   ├── architecture.md                  # Detailed architecture document
@@ -56,7 +56,7 @@ ticketing-system/
 └── README.md
 ```
 
-> **Note:** the Angular frontend is **not implemented yet** — `frontend/` contains only an empty directory skeleton. The architecture doc describes the intended structure, but no Angular code exists. nginx currently serves a placeholder page.
+> **Frontend status:** the Angular workspace is scaffolded (Angular 22, Angular Material, standalone components, **zoneless**, signals) and the **user-authentication flow** (login, sign-up, email verification, resend) is implemented under `core/`, `features/auth/`, and `shared/`. The board/teams/epics/tickets features are not built yet — `/board` is a protected placeholder. nginx builds and serves the real SPA.
 
 ---
 
@@ -85,6 +85,22 @@ docker compose -f docker-compose.yml -f docker-compose.<env>.yml \
 ```
 
 Edge ports: dev `:80`, test `:8081`, prod `:8080`. The API applies EF migrations on startup; Compose gates it on the DB health check. The API exposes `/health` (liveness) and `/health/ready` (DB readiness). No host-installed runtime is required beyond Docker (and optionally `make`).
+
+---
+
+## Frontend development (Angular)
+
+The SPA lives in `frontend/` (Angular 22, Material, standalone, zoneless). For fast iteration outside Docker:
+
+```bash
+cd frontend
+npm install
+npm start          # ng serve on http://localhost:4200; /api is proxied to http://localhost:8080
+npm test           # Jest (unit tests, jest-preset-angular)
+npm run build      # production build → dist/ticketing-frontend/browser
+```
+
+`npm start` needs the backend reachable on `:8080` (e.g. `dotnet run` in `src/TicketingSystem.Api`, or the dev Docker stack). The API base URL is `/api` (see `src/environments/`); the dev proxy is `frontend/proxy.conf.json`. Tests use **Jest** (not the Angular-default Vitest) per the testing policy below.
 
 ---
 

@@ -362,6 +362,17 @@ ASPNETCORE_ENVIRONMENT
 > map to the feature modules below. They illustrate the expected information
 > hierarchy and primary user flows, but are not a binding visual design.
 
+> **Implementation status:** the workspace is scaffolded with **Angular 22 + Angular
+> Material**, standalone components, **zoneless** change detection, and signals.
+> The **authentication flow is implemented** — `core/auth` (`AuthService`,
+> `authGuard`, `TokenStorageService`), `core/http` + `core/error` functional
+> interceptors, and the `features/auth` screens (login, signup, verify-email,
+> resend-verification) per Wireframe 2. The JWT is held in `sessionStorage`. The
+> verification email links to the SPA route `/verify-email?token=…`, which calls
+> the API and renders the result. `/` redirects to `/board`, currently a guarded
+> placeholder until the board feature is built. Unit tests use **Jest**
+> (jest-preset-angular, zoneless test env).
+
 ```
 frontend/src/app/
 ├── core/                     # Singleton services, guards, interceptors — imported once in AppModule

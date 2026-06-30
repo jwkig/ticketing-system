@@ -1,0 +1,13 @@
+<mat-toolbar color="primary">
+  <span>Ticket Tracker</span>
+  <span class="spacer"></span>
+  @if (userEmail()) {
+    <span class="user-email">{{ userEmail() }}</span>
+  }
+  <button mat-button (click)="logout()">Log out</button>
+</mat-toolbar>
+
+<main class="board-placeholder">
+  <h1>Board</h1>
+  <p>The Kanban board is coming soon. You are signed in.</p>
+</main>
