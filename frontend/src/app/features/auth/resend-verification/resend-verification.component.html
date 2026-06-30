@@ -1,0 +1,38 @@
+<div class="auth-page">
+  <mat-card class="auth-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Resend verification email</mat-card-title>
+      <mat-card-subtitle>We'll send a fresh link to your address.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (loading()) {
+        <app-loading-spinner label="Sending…" />
+      } @else if (sent()) {
+        <p>
+          If that address belongs to an unverified account, a new verification link is on its way.
+          The link expires in 24 hours.
+        </p>
+        <p class="hint"><a routerLink="/login">Back to login →</a></p>
+      } @else {
+        <app-error-banner [message]="errorMessage()" />
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+              <mat-error>Email is required.</mat-error>
+            } @else if (form.controls.email.hasError('email')) {
+              <mat-error>Enter a valid email address.</mat-error>
+            }
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" class="full-width" type="submit">
+            Resend email
+          </button>
+        </form>
+
+        <p class="hint"><a routerLink="/login">Back to login →</a></p>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

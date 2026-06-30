@@ -112,17 +112,35 @@ ticketing-system/
 ├── docker-compose.yml                   # Base topology (nginx → api → db)
 ├── docker-compose.{dev,test,prod}.yml   # Environment overrides
 ├── Makefile                             # make <env>-up / <env>-down / …
-├── frontend/                            # Angular workspace (skeleton only — not implemented yet)
+├── frontend/                            # Angular 22 SPA (Material, standalone, zoneless) — auth flow implemented
 └── docs/
-    └── architecture.md                  # Detailed architecture and design decisions
+    ├── architecture.md                  # Detailed architecture and design decisions
+    └── ui/wireframes/                   # Reference wireframes (from the requirements spec)
 ```
 
 The backend follows Clean Architecture: `Domain` → `Application` → `Infrastructure` → `Api`, with dependencies pointing inward only. See [`docs/architecture.md`](docs/architecture.md) for layer diagrams, entity definitions, and the full API contract.
 
+## Frontend
+
+The Angular SPA lives in `frontend/` (Angular 22, Angular Material, standalone components, zoneless, signals). The **user-authentication flow** — sign-up, login, email verification, and resend — is implemented (following [Wireframe 2](docs/ui/wireframes/README.md)); the board/teams/epics/tickets screens are not built yet (`/board` is a protected placeholder).
+
+In the Docker stacks, nginx builds and serves the SPA at the edge. For fast local iteration:
+
+```bash
+cd frontend
+npm install
+npm start          # ng serve on http://localhost:4200 (proxies /api to http://localhost:8080)
+npm test           # Jest unit tests
+npm run build      # production build → dist/ticketing-frontend/browser
+```
+
+`npm start` expects the backend on `:8080` (run the dev stack, or `dotnet run` in `src/TicketingSystem.Api`).
+
 ## Running tests
 
 ```bash
-dotnet test
+dotnet test                  # backend: domain, application, infrastructure, API integration
+cd frontend && npm test      # frontend: Jest unit tests
 ```
 
 Minimum coverage target is 80 % per changed file.

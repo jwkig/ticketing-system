@@ -20,7 +20,9 @@ public sealed class SmtpEmailService : IEmailService
 
     public async Task SendVerificationEmailAsync(string toEmail, string rawToken, CancellationToken ct = default)
     {
-        var verifyUrl = $"{_app.BaseUrl.TrimEnd('/')}/api/auth/verify-email?token={Uri.EscapeDataString(rawToken)}";
+        // Links to the SPA's verification screen (not the API directly), which
+        // then calls GET /api/auth/verify-email and renders the result.
+        var verifyUrl = $"{_app.BaseUrl.TrimEnd('/')}/verify-email?token={Uri.EscapeDataString(rawToken)}";
 
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse("noreply@ticketing.app"));
