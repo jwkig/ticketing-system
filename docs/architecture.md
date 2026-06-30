@@ -357,6 +357,11 @@ ASPNETCORE_ENVIRONMENT
 
 ## 4. Frontend Structure (Angular)
 
+> **Reference wireframes:** see [`docs/ui/wireframes/`](ui/wireframes/README.md) for the
+> low-fidelity screen mock-ups (extracted from §15 of the requirements spec) that
+> map to the feature modules below. They illustrate the expected information
+> hierarchy and primary user flows, but are not a binding visual design.
+
 ```
 frontend/src/app/
 ├── core/                     # Singleton services, guards, interceptors — imported once in AppModule
