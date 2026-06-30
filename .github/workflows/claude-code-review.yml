@@ -1,0 +1,35 @@
+name: Claude Code Review
+
+# Automatic review on every pull request — no @claude mention needed.
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Claude review
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Subscription (OAuth) auth — see CLAUDE_CODE_OAUTH_TOKEN secret.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this pull request and leave your feedback as inline comments
+            on the PR. Focus on:
+              - Correctness bugs and logic errors
+              - Security issues (auth, secrets, input validation)
+              - Adherence to the standards in CLAUDE.md: Clean Architecture
+                layering, the domain rules, and the 80% unit-test coverage policy
+                (every code change must ship with its tests in the same PR)
+            Be concise and prioritise high-confidence findings over nitpicks.
+          claude_args: "--max-turns 10"
