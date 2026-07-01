@@ -24,7 +24,8 @@ public sealed class TicketRepository : ITicketRepository
         if (!string.IsNullOrWhiteSpace(filter.Search))
             query = query.Where(t => EF.Functions.ILike(t.Title, $"%{filter.Search.Trim()}%"));
 
-        return await query.OrderByDescending(t => t.CreatedAt).ToListAsync(ct);
+        // Spec: within a board column, cards are ordered most-recently-modified first.
+        return await query.OrderByDescending(t => t.ModifiedAt).ToListAsync(ct);
     }
 
     public async Task<Ticket?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
