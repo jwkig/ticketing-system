@@ -380,10 +380,11 @@ ASPNETCORE_ENVIRONMENT
 > and the `features/board` screen (team selector + the five fixed state columns of ticket
 > cards + client-side Type/Epic/title filters) per Wireframe 8, with full **ticket
 > management**: create/edit/delete through a Material dialog (`ticket-form-dialog`) and a
-> per-card **state selector** that moves a ticket between columns via `PATCH
-> /api/tickets/{id}/state`. Backed by `GET /api/teams/{teamId}/tickets`, `GET/POST/PUT/DELETE
-> /api/tickets/...`. Only **drag-and-drop** is deferred. Guarded routes are hosted by a
-> shared `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu); `/`
+> per-card **state selector** and **drag-and-drop** (`@angular/cdk/drag-drop`) that move a
+> ticket between columns via `PATCH /api/tickets/{id}/state` — the drag optimistically
+> moves the card and reverts on error. Backed by `GET /api/teams/{teamId}/tickets`,
+> `GET/POST/PUT/DELETE /api/tickets/...`. Guarded routes are hosted by a shared
+> `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu); `/`
 > redirects to `/board`.
 > Unit tests use **Vitest** (Angular 22's built-in `ng test` runner, Node + jsdom).
 
@@ -406,7 +407,7 @@ frontend/src/app/
 │
 ├── features/                 # Lazy-loaded feature modules
 │   ├── auth/                 # /login, /signup, /verify-email, /resend-verification
-│   ├── board/                # /board — Kanban board, team selector, filters, ticket CRUD dialog + state selector (drag-and-drop deferred)
+│   ├── board/                # /board — Kanban board, team selector, filters, ticket CRUD dialog + drag-and-drop + state selector
 │   ├── ticket-detail/        # /tickets/:id — view, edit, comments
 │   ├── teams/                # /teams — team list and CRUD
 │   └── epics/                # /epics — epic list and CRUD per team

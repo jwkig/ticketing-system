@@ -42,7 +42,7 @@ ticketing-system/
 │   ├── TicketingSystem.Application.Tests/
 │   ├── TicketingSystem.Infrastructure.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
-├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth + teams + epics + board with ticket CRUD + state changes implemented (drag-and-drop still TODO)
+├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth + teams + epics + board with ticket CRUD, drag-and-drop, and state changes all implemented
 ├── deploy/
 │   ├── compose.ps1                      # PowerShell up/down helper (Windows)
 │   └── nginx/                           # Web tier: multi-stage Dockerfile (builds + serves the SPA) + reverse-proxy conf
@@ -56,7 +56,7 @@ ticketing-system/
 └── README.md
 ```
 
-> **Frontend status:** the Angular workspace (Angular 22, Angular Material, standalone, **zoneless**, signals) implements the **auth flow** (`features/auth/`), **Teams management** (`features/teams/`, `core/teams/`), **Epics management** (`features/epics/`, `core/epics/` — team-selector + CRUD per Wireframe 5), and the **Board** (`features/board/`, `core/tickets/` — team selector + 5 state columns + client-side filters + full **ticket CRUD** via a dialog + a per-card **state selector** to move tickets, per Wireframe 8). A `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu) hosts the guarded routes. **Drag-and-drop** state changes are the only board interaction still TODO. nginx builds and serves the real SPA.
+> **Frontend status:** the Angular workspace (Angular 22, Angular Material, standalone, **zoneless**, signals) implements the **auth flow** (`features/auth/`), **Teams management** (`features/teams/`, `core/teams/`), **Epics management** (`features/epics/`, `core/epics/` — team-selector + CRUD per Wireframe 5), and the **Board** (`features/board/`, `core/tickets/` — team selector + 5 state columns + client-side filters + full **ticket CRUD** via a dialog + **drag-and-drop** between columns (`@angular/cdk/drag-drop`, optimistic with revert-on-error) plus a per-card **state selector** fallback, per Wireframe 8). A `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu) hosts the guarded routes. All spec screens are implemented. nginx builds and serves the real SPA.
 
 ---
 

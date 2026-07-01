@@ -63,7 +63,7 @@
     @if (loading()) {
       <app-loading-spinner label="Loading tickets…" />
     } @else {
-      <div class="board">
+      <div class="board" cdkDropListGroup>
         @for (column of columns(); track column.state) {
           <section class="column">
             <div class="column-head">
@@ -71,10 +71,19 @@
               <span class="column-count">{{ column.tickets.length }}</span>
             </div>
 
+            <div
+              class="column-cards"
+              cdkDropList
+              [cdkDropListData]="column.tickets"
+              (cdkDropListDropped)="onDrop($event, column.state)"
+            >
             @for (ticket of column.tickets; track ticket.id) {
-              <mat-card class="ticket-card" appearance="outlined">
+              <mat-card class="ticket-card" appearance="outlined" cdkDrag [cdkDragData]="ticket">
                 <mat-card-content>
-                  <span class="type-badge type-{{ ticket.type }}">{{ ticket.type }}</span>
+                  <div class="card-head">
+                    <mat-icon class="drag-handle" cdkDragHandle aria-label="Drag ticket">drag_indicator</mat-icon>
+                    <span class="type-badge type-{{ ticket.type }}">{{ ticket.type }}</span>
+                  </div>
                   <p class="card-title">{{ ticket.title }}</p>
                   @if (ticket.epicTitle) {
                     <p class="card-epic">Epic: {{ ticket.epicTitle }}</p>
@@ -110,6 +119,7 @@
             } @empty {
               <p class="column-empty">No tickets.</p>
             }
+            </div>
           </section>
         }
       </div>

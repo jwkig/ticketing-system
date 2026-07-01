@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 import { EpicsService } from '../../core/epics/epics.service';
 import { NotificationService } from '../../core/notification/notification.service';
 import { TeamsService } from '../../core/teams/teams.service';
@@ -210,5 +211,63 @@ describe('BoardComponent', () => {
     await setup();
     component.changeState(ticket({ id: 't1', state: 'new' }), 'new');
     expect(ticketsSvc.changeState).not.toHaveBeenCalled();
+  });
+
+  // --- drag-and-drop ---
+
+  function columnText(label: string): string {
+    const columns = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.column'));
+    const col = columns.find((c) => (c.querySelector('.column-head')?.textContent ?? '').includes(label));
+    return col?.textContent ?? '';
+  }
+
+  function dropEvent(dragged: TicketSummary, sameContainer = false) {
+    const container = {};
+    return {
+      previousContainer: sameContainer ? container : {},
+      container,
+      item: { data: dragged },
+    } as never;
+  }
+
+  it('moving a card to another column persists the new state and reloads', async () => {
+    await setup(); // getByTeam called once
+    const card = ticket({ id: 't1', title: 'Login fails', state: 'new' });
+    component.onDrop(dropEvent(card), 'done');
+    expect(ticketsSvc.changeState).toHaveBeenCalledWith('t1', 'done');
+    expect(ticketsSvc.getByTeam).toHaveBeenCalledTimes(2); // reload on success
+  });
+
+  it('optimistically moves the card into the target column before the server responds', async () => {
+    ticketsSvc.changeState.mockReturnValue(NEVER); // never completes → no reload
+    await setup();
+    const card = ticket({ id: 't1', title: 'Login fails', state: 'new' });
+
+    component.onDrop(dropEvent(card), 'done');
+    fixture.detectChanges();
+
+    expect(columnText('Done')).toContain('Login fails');
+    expect(columnText('New')).not.toContain('Login fails');
+  });
+
+  it('ignores a drop within the same column', async () => {
+    await setup();
+    component.onDrop(dropEvent(ticket({ id: 't1', state: 'new' }), true), 'new');
+    expect(ticketsSvc.changeState).not.toHaveBeenCalled();
+  });
+
+  it('reverts the card and shows an error when the state change fails', async () => {
+    ticketsSvc.changeState.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 400, error: { error: 'Nope.' } })),
+    );
+    await setup();
+    const card = ticket({ id: 't1', title: 'Login fails', state: 'new' });
+
+    component.onDrop(dropEvent(card), 'done');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.error-banner')).not.toBeNull();
+    expect(columnText('New')).toContain('Login fails');
+    expect(columnText('Done')).not.toContain('Login fails');
   });
 });
