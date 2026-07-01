@@ -371,7 +371,7 @@ ASPNETCORE_ENVIRONMENT
 > verification email links to the SPA route `/verify-email?token=…`, which calls
 > the API and renders the result. **Teams management** is also implemented —
 > `core/teams/TeamsService` and the `features/teams` screen (MatTable list with
-> ticket/epic counts + create/edit form + delete confirmation) per Wireframe 4,
+> ticket/epic counts + a create/edit **dialog** + delete confirmation) per Wireframe 4,
 > against `GET/POST/PUT/DELETE /api/teams`. **Epics management** is implemented too —
 > `core/epics/EpicsService` and the `features/epics` screen (team selector + epic
 > list with ticket counts + create/edit form + delete confirmation) per Wireframe 5,

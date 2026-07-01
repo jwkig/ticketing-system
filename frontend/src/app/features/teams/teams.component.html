@@ -1,7 +1,7 @@
 <div class="teams-page">
   <header class="page-head">
     <h1>Teams</h1>
-    <button mat-flat-button color="primary" (click)="startCreate()">
+    <button mat-flat-button color="primary" (click)="openCreate()">
       <mat-icon>add</mat-icon>
       New team
     </button>
@@ -54,32 +54,7 @@
     </table>
 
     @if (teams().length === 0) {
-      <p class="empty">No teams yet. Create your first team below.</p>
+      <p class="empty">No teams yet. Create your first team.</p>
     }
   }
-
-  <mat-card class="form-card" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{ editingId() ? 'Edit team' : 'Create team' }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Team name</mat-label>
-          <input matInput formControlName="name" placeholder="e.g. Platform Engineering" />
-          @if (form.controls.name.hasError('required') && form.controls.name.touched) {
-            <mat-error>Team name is required.</mat-error>
-          }
-        </mat-form-field>
-        <div class="form-actions">
-          @if (editingId()) {
-            <button mat-button type="button" (click)="startCreate()">Cancel</button>
-          }
-          <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
-            {{ editingId() ? 'Save' : 'Create' }}
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
 </div>
