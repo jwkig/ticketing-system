@@ -4,6 +4,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <!-- Pin a patched Microsoft.OpenApi over the vulnerable 2.0.0 pulled in transitively
+         by Microsoft.AspNetCore.OpenApi (advisory GHSA-v5pm-xwqc-g5wc, fixed in 2.7.5). -->
+    <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
