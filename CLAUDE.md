@@ -42,7 +42,7 @@ ticketing-system/
 │   ├── TicketingSystem.Application.Tests/
 │   ├── TicketingSystem.Infrastructure.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
-├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth flow implemented
+├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth + teams implemented
 ├── deploy/
 │   ├── compose.ps1                      # PowerShell up/down helper (Windows)
 │   └── nginx/                           # Web tier: multi-stage Dockerfile (builds + serves the SPA) + reverse-proxy conf
@@ -56,7 +56,7 @@ ticketing-system/
 └── README.md
 ```
 
-> **Frontend status:** the Angular workspace is scaffolded (Angular 22, Angular Material, standalone components, **zoneless**, signals) and the **user-authentication flow** (login, sign-up, email verification, resend) is implemented under `core/`, `features/auth/`, and `shared/`. The board/teams/epics/tickets features are not built yet — `/board` is a protected placeholder. nginx builds and serves the real SPA.
+> **Frontend status:** the Angular workspace (Angular 22, Angular Material, standalone, **zoneless**, signals) implements the **auth flow** (`features/auth/`) and **Teams management** (`features/teams/`, `core/teams/`) with full CRUD per Wireframe 4. A `shared/layout/MainLayoutComponent` (top nav + user menu) hosts the guarded routes. The epics/tickets/board features are not built yet — `/board` is a protected placeholder. nginx builds and serves the real SPA.
 
 ---
 
