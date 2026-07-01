@@ -1,0 +1,65 @@
+name: CI
+
+# Build and run the unit/integration tests for every project on each push to
+# main and on every pull request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref (e.g. new pushes to a PR branch).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests (.NET)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore TicketingSystem.sln
+
+      - name: Build
+        run: dotnet build TicketingSystem.sln --configuration Release --no-restore
+
+      # Runs all test projects in the solution: Domain, Application, Infrastructure,
+      # and the Api integration tests (which spin up Postgres via Testcontainers on
+      # the runner's preinstalled Docker).
+      - name: Test
+        run: dotnet test TicketingSystem.sln --configuration Release --no-build --verbosity normal
+
+  frontend:
+    name: Frontend tests (Angular/Vitest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ng test → Vitest (jsdom, single-run, headless — no browser needed).
+      - name: Test
+        run: npm test
