@@ -107,7 +107,8 @@
               "src/app/app.config.ts",
               "src/app/app.ts",
               "src/app/**/*.routes.ts",
-              "src/environments/**"
+              "src/environments/**",
+              "src/**/*.html"
             ]
           }
         }

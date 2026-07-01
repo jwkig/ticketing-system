@@ -369,9 +369,13 @@ ASPNETCORE_ENVIRONMENT
 > interceptors, and the `features/auth` screens (login, signup, verify-email,
 > resend-verification) per Wireframe 2. The JWT is held in `sessionStorage`. The
 > verification email links to the SPA route `/verify-email?token=…`, which calls
-> the API and renders the result. `/` redirects to `/board`, currently a guarded
-> placeholder until the board feature is built. Unit tests use **Vitest**
-> (Angular 22's built-in `ng test` runner, Node + jsdom).
+> the API and renders the result. **Teams management** is also implemented —
+> `core/teams/TeamsService` and the `features/teams` screen (MatTable list with
+> ticket/epic counts + create/edit form + delete confirmation) per Wireframe 4,
+> against `GET/POST/PUT/DELETE /api/teams`. Guarded routes are hosted by a shared
+> `shared/layout/MainLayoutComponent` (top nav + user menu); `/` redirects to
+> `/board`, currently a placeholder until the board feature is built. Unit tests
+> use **Vitest** (Angular 22's built-in `ng test` runner, Node + jsdom).
 
 ```
 frontend/src/app/

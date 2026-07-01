@@ -1,0 +1,17 @@
+<mat-toolbar color="primary">
+  <span class="brand">Ticket Tracker</span>
+  <nav>
+    <a mat-button routerLink="/board" routerLinkActive="active">Board</a>
+    <a mat-button routerLink="/teams" routerLinkActive="active">Teams</a>
+    <button mat-button disabled title="Coming soon">Epics</button>
+  </nav>
+  <span class="spacer"></span>
+  @if (userEmail()) {
+    <span class="user-email">{{ userEmail() }}</span>
+  }
+  <button mat-button (click)="logout()">Log out</button>
+</mat-toolbar>
+
+<main>
+  <router-outlet />
+</main>

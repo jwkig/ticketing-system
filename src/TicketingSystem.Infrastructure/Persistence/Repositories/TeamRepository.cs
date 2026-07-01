@@ -38,15 +38,22 @@ public sealed class TeamRepository : ITeamRepository
                 ct, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default)
             .Unwrap();
 
+    public async Task<TeamReferenceCounts> GetReferenceCountsAsync(Guid teamId, CancellationToken ct = default)
+    {
+        var tickets = await _context.Tickets.CountAsync(t => t.TeamId == teamId, ct);
+        var epics = await _context.Epics.CountAsync(e => e.TeamId == teamId, ct);
+        return new TeamReferenceCounts(tickets, epics);
+    }
+
     public async Task<bool> ExistsByNameAsync(string normalisedName, Guid? excludeId = null, CancellationToken ct = default)
     {
-        // Load names into memory for case-insensitive comparison.
+        // Materialise the teams and compare on the value object in memory (the Name
+        // column is stored via a value converter, so it can't be projected directly).
         // Acceptable for typical team counts in this application.
-        var names = await _context.Teams
+        var teams = await _context.Teams
             .Where(t => excludeId == null || t.Id != excludeId)
-            .Select(t => EF.Property<string>(t, "Name"))
             .ToListAsync(ct);
 
-        return names.Any(n => string.Equals(n, normalisedName, StringComparison.OrdinalIgnoreCase));
+        return teams.Any(t => string.Equals(t.Name.Value, normalisedName, StringComparison.OrdinalIgnoreCase));
     }
 }

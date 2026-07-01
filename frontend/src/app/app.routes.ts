@@ -9,10 +9,21 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
-    path: 'board',
+    // Authenticated shell hosting the guarded feature routes.
+    path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/board/board.component').then((m) => m.BoardComponent),
+      import('./shared/layout/main-layout.component').then((m) => m.MainLayoutComponent),
+    children: [
+      {
+        path: 'board',
+        loadComponent: () => import('./features/board/board.component').then((m) => m.BoardComponent),
+      },
+      {
+        path: 'teams',
+        loadComponent: () => import('./features/teams/teams.component').then((m) => m.TeamsComponent),
+      },
+    ],
   },
   { path: '**', redirectTo: 'login' },
 ];
