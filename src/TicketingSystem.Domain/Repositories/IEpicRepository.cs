@@ -10,4 +10,5 @@ public interface IEpicRepository
     Task UpdateAsync(Epic epic, CancellationToken ct = default);
     Task DeleteAsync(Epic epic, CancellationToken ct = default);
     Task<bool> HasTicketsAsync(Guid epicId, CancellationToken ct = default);
+    Task<int> GetTicketCountAsync(Guid epicId, CancellationToken ct = default);
 }
