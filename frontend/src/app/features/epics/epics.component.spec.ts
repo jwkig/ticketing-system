@@ -1,13 +1,14 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { EpicsService } from '../../core/epics/epics.service';
 import { NotificationService } from '../../core/notification/notification.service';
 import { TeamsService } from '../../core/teams/teams.service';
 import { Epic } from '../../domain/epic.model';
 import { Team } from '../../domain/team.model';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { EpicFormDialogComponent } from './epic-form-dialog.component';
 import { EpicsComponent } from './epics.component';
 
 function makeTeam(over: Partial<Team> = {}): Team {
@@ -35,10 +36,14 @@ function makeEpic(over: Partial<Epic> = {}): Epic {
   };
 }
 
+function dialogClosing(value: unknown) {
+  return { afterClosed: () => of(value) };
+}
+
 describe('EpicsComponent', () => {
   let fixture: ComponentFixture<EpicsComponent>;
   let component: EpicsComponent;
-  const epicsSvc = { getByTeam: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() };
+  const epicsSvc = { getByTeam: vi.fn(), delete: vi.fn() };
   const teamsSvc = { getAll: vi.fn() };
   const dialog = { open: vi.fn() };
   const notify = { success: vi.fn(), error: vi.fn() };
@@ -59,16 +64,14 @@ describe('EpicsComponent', () => {
       .compileComponents();
     fixture = TestBed.createComponent(EpicsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // ngOnInit → load teams → select first → load epics
+    fixture.detectChanges();
   }
 
   beforeEach(() => {
     epicsSvc.getByTeam.mockReset().mockReturnValue(of([]));
-    epicsSvc.create.mockReset();
-    epicsSvc.update.mockReset();
     epicsSvc.delete.mockReset();
     teamsSvc.getAll.mockReset().mockReturnValue(of([makeTeam()]));
-    dialog.open.mockReset();
+    dialog.open.mockReset().mockReturnValue(dialogClosing(false));
     notify.success.mockReset();
   });
 
@@ -80,36 +83,56 @@ describe('EpicsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Reliability');
   });
 
-  it('creates an epic under the selected team', async () => {
+  it('opens the create dialog scoped to the selected team', async () => {
     await setup();
-    epicsSvc.create.mockReturnValue(of(makeEpic()));
-    component.form.controls.title.setValue('New epic');
-    component.submit();
-    expect(epicsSvc.create).toHaveBeenCalledWith('team-1', { title: 'New epic', description: null });
-    expect(notify.success).toHaveBeenCalled();
+    component.openCreate();
+    expect(dialog.open).toHaveBeenCalledWith(
+      EpicFormDialogComponent,
+      expect.objectContaining({ data: { teamId: 'team-1', epic: null } }),
+    );
   });
 
-  it('shows an inline error when creation conflicts', async () => {
+  it('opens the edit dialog pre-loaded with the epic', async () => {
     await setup();
-    epicsSvc.create.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 400, error: { error: 'Team not found.' } })),
+    const epic = makeEpic();
+    component.startEdit(epic);
+    expect(dialog.open).toHaveBeenCalledWith(
+      EpicFormDialogComponent,
+      expect.objectContaining({ data: { teamId: 'team-1', epic } }),
     );
-    component.form.controls.title.setValue('Orphan');
-    component.submit();
-    fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.error-banner')).not.toBeNull();
+  });
+
+  it('reloads the epic list after the dialog reports a save', async () => {
+    await setup(); // getByTeam called once (initial team select)
+    dialog.open.mockReturnValue(dialogClosing(true));
+    component.openCreate();
+    expect(epicsSvc.getByTeam).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not reload when the dialog is cancelled', async () => {
+    await setup();
+    dialog.open.mockReturnValue(dialogClosing(false));
+    component.openCreate();
+    expect(epicsSvc.getByTeam).toHaveBeenCalledTimes(1);
   });
 
   it('confirms then deletes an epic', async () => {
     epicsSvc.getByTeam.mockReturnValue(of([makeEpic()]));
     await setup();
-    dialog.open.mockReturnValue({ afterClosed: () => of(true) });
+    dialog.open.mockReturnValue(dialogClosing(true));
     epicsSvc.delete.mockReturnValue(of(undefined));
 
     component.confirmDelete(makeEpic());
 
-    expect(dialog.open).toHaveBeenCalled();
+    expect(dialog.open).toHaveBeenCalledWith(ConfirmDialogComponent, expect.anything());
     expect(epicsSvc.delete).toHaveBeenCalledWith('epic-1');
+  });
+
+  it('does not delete when the confirm dialog is cancelled', async () => {
+    await setup();
+    dialog.open.mockReturnValue(dialogClosing(false));
+    component.confirmDelete(makeEpic());
+    expect(epicsSvc.delete).not.toHaveBeenCalled();
   });
 
   it('disables delete when the epic has tickets', async () => {

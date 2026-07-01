@@ -374,7 +374,7 @@ ASPNETCORE_ENVIRONMENT
 > ticket/epic counts + a create/edit **dialog** + delete confirmation) per Wireframe 4,
 > against `GET/POST/PUT/DELETE /api/teams`. **Epics management** is implemented too —
 > `core/epics/EpicsService` and the `features/epics` screen (team selector + epic
-> list with ticket counts + create/edit form + delete confirmation) per Wireframe 5,
+> list with ticket counts + a create/edit **dialog** + delete confirmation) per Wireframe 5,
 > against `GET/POST /api/teams/{teamId}/epics` and `PUT/DELETE /api/epics/{id}`; an
 > epic's team is fixed at creation. Guarded routes are hosted by a shared
 > `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu); `/`
