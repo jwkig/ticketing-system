@@ -1,5 +1,11 @@
 <div class="board-page">
-  <h1>Board</h1>
+  <header class="page-head">
+    <h1>Board</h1>
+    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="!selectedTeamId()">
+      <mat-icon>add</mat-icon>
+      New ticket
+    </button>
+  </header>
 
   @if (teams().length === 0) {
     <p class="empty">Create a team first — the board shows one team's tickets at a time.</p>
@@ -73,6 +79,32 @@
                   @if (ticket.epicTitle) {
                     <p class="card-epic">Epic: {{ ticket.epicTitle }}</p>
                   }
+                  <div class="card-actions">
+                    <mat-form-field appearance="outline" class="state-select" subscriptSizing="dynamic">
+                      <mat-label>State</mat-label>
+                      <mat-select
+                        [value]="ticket.state"
+                        (selectionChange)="changeState(ticket, $event.value)"
+                        aria-label="Move ticket to state"
+                      >
+                        @for (col of boardColumns; track col.state) {
+                          <mat-option [value]="col.state">{{ col.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button (click)="startEdit(ticket)" aria-label="Edit ticket" title="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      (click)="confirmDelete(ticket)"
+                      aria-label="Delete ticket"
+                      title="Delete"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                 </mat-card-content>
               </mat-card>
             } @empty {

@@ -9,7 +9,7 @@ export type TicketState =
 
 export type TicketType = 'bug' | 'feature' | 'fix';
 
-/** A ticket as shown on the read-only Kanban board. */
+/** A ticket as shown on the Kanban board. */
 export interface TicketSummary {
   id: string;
   teamId: string;
@@ -20,6 +20,25 @@ export interface TicketSummary {
   epicTitle: string | null;
   createdAt: string;
   modifiedAt: string;
+}
+
+/** A single ticket with its full body (create/update/get-by-id responses). */
+export interface TicketDetail extends TicketSummary {
+  body: string;
+  createdById: string;
+}
+
+/** Request body for creating or updating a ticket (team fixed at creation). */
+export interface SaveTicketRequest {
+  type: TicketType;
+  title: string;
+  body: string;
+  epicId: string | null;
+}
+
+/** Request body for moving a ticket to a new workflow state. */
+export interface ChangeTicketStateRequest {
+  state: TicketState;
 }
 
 /** The five fixed board columns, in workflow order. */

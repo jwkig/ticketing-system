@@ -1,11 +1,15 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { extractErrorMessage } from '../../core/error/error.interceptor';
 import { EpicsService } from '../../core/epics/epics.service';
+import { NotificationService } from '../../core/notification/notification.service';
 import { TeamsService } from '../../core/teams/teams.service';
 import { TicketsService } from '../../core/tickets/tickets.service';
 import { Epic } from '../../domain/epic.model';
@@ -13,11 +17,18 @@ import { Team } from '../../domain/team.model';
 import {
   BOARD_COLUMNS,
   TICKET_TYPES,
+  TicketDetail,
+  TicketState,
   TicketSummary,
   TicketType,
 } from '../../domain/ticket.model';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { TicketFormDialogComponent } from './ticket-form-dialog.component';
 
 interface BoardColumn {
   state: string;
@@ -26,8 +37,10 @@ interface BoardColumn {
 }
 
 /**
- * Read-only Kanban board: pick a team, then view its tickets grouped into the
- * five fixed workflow columns. Client-side Type/Epic/title filters narrow the
+ * Kanban board: pick a team, then view its tickets grouped into the five fixed
+ * workflow columns. Tickets are created/edited via a dialog and moved between
+ * columns with a per-card state selector (drag-and-drop is out of scope).
+ * Client-side Type/Epic/title filters narrow the
  * cards. Ticket create/edit and drag-and-drop state changes are out of scope.
  */
 @Component({
@@ -35,6 +48,7 @@ interface BoardColumn {
   imports: [
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
@@ -117,6 +131,21 @@ interface BoardColumn {
       font-size: 0.8rem;
       opacity: 0.7;
     }
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .state-select {
+      flex: 1;
+      font-size: 0.8rem;
+    }
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     .column-empty {
       font-size: 0.85rem;
       opacity: 0.5;
@@ -131,6 +160,8 @@ export class BoardComponent implements OnInit {
   private readonly teamsSvc = inject(TeamsService);
   private readonly ticketsSvc = inject(TicketsService);
   private readonly epicsSvc = inject(EpicsService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notify = inject(NotificationService);
 
   protected readonly teams = signal<Team[]>([]);
   protected readonly epics = signal<Epic[]>([]);
@@ -144,6 +175,7 @@ export class BoardComponent implements OnInit {
   protected readonly search = signal('');
 
   protected readonly ticketTypes = TICKET_TYPES;
+  protected readonly boardColumns = BOARD_COLUMNS;
 
   /** The five fixed columns, each with the tickets matching its state + active filters. */
   protected readonly columns = computed<BoardColumn[]>(() => {
@@ -198,6 +230,74 @@ export class BoardComponent implements OnInit {
     this.typeFilter.set('');
     this.epicFilter.set('');
     this.search.set('');
+  }
+
+  openCreate(): void {
+    this.openForm(null);
+  }
+
+  /** Fetches the full ticket (with body) before opening the edit dialog. */
+  startEdit(ticket: TicketSummary): void {
+    this.ticketsSvc.getById(ticket.id).subscribe({
+      next: (detail) => this.openForm(detail),
+      error: (err: HttpErrorResponse) => this.errorMessage.set(extractErrorMessage(err)),
+    });
+  }
+
+  confirmDelete(ticket: TicketSummary): void {
+    const data: ConfirmDialogData = {
+      title: 'Delete ticket',
+      message: `Delete "${ticket.title}"? This cannot be undone.`,
+    };
+    this.dialog
+      .open(ConfirmDialogComponent, { data })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed === true) {
+          this.deleteTicket(ticket.id);
+        }
+      });
+  }
+
+  /** Moves a ticket to a new column via its state selector. No-op if unchanged. */
+  changeState(ticket: TicketSummary, state: TicketState): void {
+    if (state === ticket.state) {
+      return;
+    }
+    this.errorMessage.set('');
+    this.ticketsSvc.changeState(ticket.id, state).subscribe({
+      next: () => this.loadTickets(),
+      error: (err: HttpErrorResponse) => this.errorMessage.set(extractErrorMessage(err)),
+    });
+  }
+
+  private openForm(ticket: TicketDetail | null): void {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    this.dialog
+      .open(TicketFormDialogComponent, {
+        data: { teamId, ticket, epics: this.epics() },
+        width: '520px',
+      })
+      .afterClosed()
+      .subscribe((saved) => {
+        if (saved === true) {
+          this.loadTickets();
+        }
+      });
+  }
+
+  private deleteTicket(id: string): void {
+    this.errorMessage.set('');
+    this.ticketsSvc.delete(id).subscribe({
+      next: () => {
+        this.notify.success('Ticket deleted.');
+        this.loadTickets();
+      },
+      error: (err: HttpErrorResponse) => this.errorMessage.set(extractErrorMessage(err)),
+    });
   }
 
   private loadEpics(): void {
