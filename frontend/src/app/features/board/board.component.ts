@@ -1,3 +1,4 @@
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +32,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { TicketFormDialogComponent } from './ticket-form-dialog.component';
 
 interface BoardColumn {
-  state: string;
+  state: TicketState;
   label: string;
   tickets: TicketSummary[];
 }
@@ -46,6 +47,7 @@ interface BoardColumn {
 @Component({
   selector: 'app-board',
   imports: [
+    DragDropModule,
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
@@ -106,8 +108,46 @@ interface BoardColumn {
       opacity: 0.6;
       font-weight: 400;
     }
+    .column-cards {
+      min-height: 48px;
+      border-radius: 6px;
+    }
     .ticket-card {
       margin-bottom: 0.75rem;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .drag-handle {
+      cursor: grab;
+      opacity: 0.4;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    .ticket-card:hover .drag-handle {
+      opacity: 0.7;
+    }
+    .cdk-drag-preview {
+      box-shadow:
+        0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    }
+    .cdk-drag-placeholder {
+      opacity: 0;
+    }
+    .cdk-drag-animating {
+      transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+      transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .column-cards.cdk-drop-list-receiving,
+    .column-cards.cdk-drop-list-dragging {
+      background: rgba(25, 118, 210, 0.08);
     }
     .type-badge {
       display: inline-block;
@@ -268,6 +308,30 @@ export class BoardComponent implements OnInit {
     this.ticketsSvc.changeState(ticket.id, state).subscribe({
       next: () => this.loadTickets(),
       error: (err: HttpErrorResponse) => this.errorMessage.set(extractErrorMessage(err)),
+    });
+  }
+
+  /**
+   * Handles a card dropped onto a column: optimistically moves it, persists via
+   * PATCH, and reverts on error. Same-column drops are ignored (order isn't persisted).
+   */
+  onDrop(event: CdkDragDrop<TicketSummary[]>, targetState: TicketState): void {
+    if (event.previousContainer === event.container) {
+      return;
+    }
+    const ticket = event.item.data as TicketSummary;
+    if (ticket.state === targetState) {
+      return;
+    }
+    const previous = this.tickets();
+    this.tickets.set(previous.map((t) => (t.id === ticket.id ? { ...t, state: targetState } : t)));
+    this.errorMessage.set('');
+    this.ticketsSvc.changeState(ticket.id, targetState).subscribe({
+      next: () => this.loadTickets(),
+      error: (err: HttpErrorResponse) => {
+        this.tickets.set(previous);
+        this.errorMessage.set(extractErrorMessage(err));
+      },
     });
   }
 
