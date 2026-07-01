@@ -1,7 +1,7 @@
 using MediatR;
+using TicketingSystem.Application.Common;
 using TicketingSystem.Application.DTOs;
 using TicketingSystem.Domain.Repositories;
-using TicketingSystem.Domain.ValueObjects;
 
 namespace TicketingSystem.Application.Queries.Tickets;
 
@@ -28,8 +28,8 @@ public class GetTicketsByTeamQueryHandler
             .Select(t => new TicketSummaryDto(
                 t.Id,
                 t.TeamId,
-                ToApiString(t.Type),
-                ToApiString(t.State),
+                TicketEnumMap.ToApiString(t.Type),
+                TicketEnumMap.ToApiString(t.State),
                 t.Title,
                 t.EpicId,
                 t.EpicId is { } epicId && epicTitles.TryGetValue(epicId, out var title) ? title : null,
@@ -37,22 +37,4 @@ public class GetTicketsByTeamQueryHandler
                 t.ModifiedAt))
             .ToList();
     }
-
-    private static string ToApiString(TicketType type) => type switch
-    {
-        TicketType.Bug => "bug",
-        TicketType.Feature => "feature",
-        TicketType.Fix => "fix",
-        _ => type.ToString().ToLowerInvariant(),
-    };
-
-    private static string ToApiString(TicketState state) => state switch
-    {
-        TicketState.New => "new",
-        TicketState.ReadyForImplementation => "ready_for_implementation",
-        TicketState.InProgress => "in_progress",
-        TicketState.ReadyForAcceptance => "ready_for_acceptance",
-        TicketState.Done => "done",
-        _ => state.ToString().ToLowerInvariant(),
-    };
 }

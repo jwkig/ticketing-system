@@ -2,7 +2,7 @@
 
 A Kanban-style ticket tracker. Users sign up, verify their email, create teams and epics, then manage tickets across a five-state workflow on a drag-and-drop board.
 
-> **Status:** the backend API is complete; the frontend implements the authentication flow (sign-up, login, email verification, resend), **Teams management** and **Epics management** (full CRUD), and a **read-only Kanban board** (team selector, five state columns, client-side Type/Epic/title filters). Ticket create/edit and drag-and-drop state changes are not built yet.
+> **Status:** the backend API is complete; the frontend implements the authentication flow (sign-up, login, email verification, resend), **Teams management** and **Epics management** (full CRUD), and the **Kanban board** with full **ticket management** — create/edit/delete tickets, move them between the five states via a per-card selector, and client-side Type/Epic/title filters. Drag-and-drop state changes are the only board interaction still out of scope.
 
 ## Tech stack
 
@@ -77,7 +77,7 @@ docker compose -f docker-compose.yml -f docker-compose.<env>.yml \
 
 The API applies EF Core migrations on startup; Compose waits for the database's health check before starting it, so the first boot provisions the schema automatically.
 
-> **Note:** the `web` image is a multi-stage build — it compiles the Angular SPA and nginx serves it (see `deploy/nginx/Dockerfile`). The authentication, Teams, Epics, and read-only Board screens are implemented; ticket create/edit and drag-and-drop state changes are not built yet.
+> **Note:** the `web` image is a multi-stage build — it compiles the Angular SPA and nginx serves it (see `deploy/nginx/Dockerfile`). The authentication, Teams, Epics, and Board screens (incl. ticket create/edit/delete and state changes) are implemented; drag-and-drop is the only board interaction not yet built.
 
 ## Configuration
 
@@ -124,7 +124,7 @@ The backend follows Clean Architecture: `Domain` → `Application` → `Infrastr
 
 ## Frontend
 
-The Angular SPA lives in `frontend/` (Angular 22, Angular Material, standalone components, zoneless, signals). Implemented so far: the **user-authentication flow** ([Wireframe 2](docs/ui/wireframes/README.md)), **Teams management** ([Wireframe 4](docs/ui/wireframes/README.md)), **Epics management** ([Wireframe 5](docs/ui/wireframes/README.md)) — all full CRUD — and a **read-only Kanban board** ([Wireframe 8](docs/ui/wireframes/README.md)) with a team selector, the five state columns, and client-side Type/Epic/title filters, behind a shared navigation layout. Ticket create/edit and drag-and-drop state changes are not built yet.
+The Angular SPA lives in `frontend/` (Angular 22, Angular Material, standalone components, zoneless, signals). Implemented so far: the **user-authentication flow** ([Wireframe 2](docs/ui/wireframes/README.md)), **Teams management** ([Wireframe 4](docs/ui/wireframes/README.md)), **Epics management** ([Wireframe 5](docs/ui/wireframes/README.md)), and the **Kanban board** ([Wireframe 8](docs/ui/wireframes/README.md)) — team selector, five state columns, client-side Type/Epic/title filters, and full **ticket management** (create/edit/delete via a dialog, plus a per-card state selector to move tickets between columns) — all behind a shared navigation layout. Drag-and-drop state changes are the only board interaction still out of scope.
 
 In the Docker stacks, nginx builds and serves the SPA at the edge. For fast local iteration:
 
