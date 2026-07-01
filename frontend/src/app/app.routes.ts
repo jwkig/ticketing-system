@@ -23,6 +23,10 @@ export const routes: Routes = [
         path: 'teams',
         loadComponent: () => import('./features/teams/teams.component').then((m) => m.TeamsComponent),
       },
+      {
+        path: 'epics',
+        loadComponent: () => import('./features/epics/epics.component').then((m) => m.EpicsComponent),
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },

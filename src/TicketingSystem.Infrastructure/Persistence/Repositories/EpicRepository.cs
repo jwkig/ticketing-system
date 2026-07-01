@@ -36,4 +36,7 @@ public sealed class EpicRepository : IEpicRepository
 
     public Task<bool> HasTicketsAsync(Guid epicId, CancellationToken ct = default) =>
         _context.Tickets.AnyAsync(t => t.EpicId == epicId, ct);
+
+    public Task<int> GetTicketCountAsync(Guid epicId, CancellationToken ct = default) =>
+        _context.Tickets.CountAsync(t => t.EpicId == epicId, ct);
 }
