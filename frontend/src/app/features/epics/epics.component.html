@@ -1,7 +1,7 @@
 <div class="epics-page">
   <header class="page-head">
     <h1>Epics</h1>
-    <button mat-flat-button color="primary" (click)="startCreate()" [disabled]="!selectedTeamId()">
+    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="!selectedTeamId()">
       <mat-icon>add</mat-icon>
       New epic
     </button>
@@ -12,10 +12,7 @@
   } @else {
     <mat-form-field appearance="outline" class="team-picker">
       <mat-label>Team</mat-label>
-      <mat-select
-        [value]="selectedTeamId()"
-        (selectionChange)="selectTeam($event.value)"
-      >
+      <mat-select [value]="selectedTeamId()" (selectionChange)="selectTeam($event.value)">
         @for (team of teams(); track team.id) {
           <mat-option [value]="team.id">{{ team.name }}</mat-option>
         }
@@ -69,39 +66,8 @@
       </table>
 
       @if (epics().length === 0) {
-        <p class="empty">No epics for this team yet. Create one below.</p>
+        <p class="empty">No epics for this team yet. Create one with "New epic".</p>
       }
     }
-
-    <mat-card class="form-card" appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>{{ editingId() ? 'Edit epic' : 'Create epic' }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Title</mat-label>
-            <input matInput formControlName="title" />
-            @if (form.controls.title.hasError('required') && form.controls.title.touched) {
-              <mat-error>Title is required.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description (optional)</mat-label>
-            <textarea matInput formControlName="description" rows="3"></textarea>
-          </mat-form-field>
-
-          <div class="form-actions">
-            @if (editingId()) {
-              <button mat-button type="button" (click)="startCreate()">Cancel</button>
-            }
-            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
-              {{ editingId() ? 'Save' : 'Create' }}
-            </button>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
   }
 </div>
