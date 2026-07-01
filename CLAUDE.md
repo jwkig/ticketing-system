@@ -42,7 +42,7 @@ ticketing-system/
 │   ├── TicketingSystem.Application.Tests/
 │   ├── TicketingSystem.Infrastructure.Tests/
 │   └── TicketingSystem.Api.IntegrationTests/
-├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth + teams + epics implemented
+├── frontend/                            # Angular 22 workspace (Material, standalone, zoneless) — auth + teams + epics + read-only board implemented
 ├── deploy/
 │   ├── compose.ps1                      # PowerShell up/down helper (Windows)
 │   └── nginx/                           # Web tier: multi-stage Dockerfile (builds + serves the SPA) + reverse-proxy conf

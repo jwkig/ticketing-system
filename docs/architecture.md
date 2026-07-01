@@ -376,9 +376,13 @@ ASPNETCORE_ENVIRONMENT
 > `core/epics/EpicsService` and the `features/epics` screen (team selector + epic
 > list with ticket counts + a create/edit **dialog** + delete confirmation) per Wireframe 5,
 > against `GET/POST /api/teams/{teamId}/epics` and `PUT/DELETE /api/epics/{id}`; an
-> epic's team is fixed at creation. Guarded routes are hosted by a shared
-> `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics + user menu); `/`
-> redirects to `/board`, currently a placeholder until the board feature is built.
+> epic's team is fixed at creation. The **Board** is implemented as a **read-only**
+> Kanban view — `core/tickets/TicketsService` and the `features/board` screen (team
+> selector + the five fixed state columns of read-only ticket cards + client-side
+> Type/Epic/title filters) per Wireframe 8, against `GET /api/teams/{teamId}/tickets`;
+> ticket create/edit and drag-and-drop state changes are deferred. Guarded routes are
+> hosted by a shared `shared/layout/MainLayoutComponent` (top nav Board/Teams/Epics +
+> user menu); `/` redirects to `/board`.
 > Unit tests use **Vitest** (Angular 22's built-in `ng test` runner, Node + jsdom).
 
 ```
@@ -400,7 +404,7 @@ frontend/src/app/
 │
 ├── features/                 # Lazy-loaded feature modules
 │   ├── auth/                 # /login, /signup, /verify-email, /resend-verification
-│   ├── board/                # /board — Kanban board, team selector, filters, drag-and-drop
+│   ├── board/                # /board — read-only Kanban board, team selector, filters (drag-and-drop deferred)
 │   ├── ticket-detail/        # /tickets/:id — view, edit, comments
 │   ├── teams/                # /teams — team list and CRUD
 │   └── epics/                # /epics — epic list and CRUD per team
